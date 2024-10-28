@@ -1,6 +1,4 @@
-from interface import *
 from constants import *
-import pygame
 
 def quit_game(SQ_SIZE):
     """Kiểm tra xem người chơi có muốn thoát game hay không"""
@@ -36,29 +34,33 @@ def quit_game(SQ_SIZE):
         clock.tick(60)
         pygame.display.flip()
 
-def draw_button(text, text_size,  x, y, width, height, border_radius, border_width,
+
+def draw_button(text, text_size, x, y, width, height, border_radius, border_width,
                 not_text_hover_color, text_hover_color, not_hover_color, hover_color, border_color):
     """Vẽ nút bo góc với màu sắc, viền và vị trí đã chỉ định"""
     font_button = pygame.font.SysFont('Arial', text_size, True)
     mouse_pos = pygame.mouse.get_pos()
     button_rect = pygame.Rect(x, y, width, height)
+
+    # Kiểm tra xem chuột có nằm trong nút không
     if button_rect.collidepoint(mouse_pos):
         button_color = hover_color
         text_color = text_hover_color
     else:
         button_color = not_hover_color
         text_color = not_text_hover_color
-    draw_rounded_rect(screen, button_rect, border_radius, border_color, border_width)
-    rounded_rect(screen, button_rect, border_radius, button_color)
+
+    # Vẽ viền của nút (nếu có border_width > 0)
+    if border_width > 0:
+        border_rect = button_rect.inflate(border_width, border_width)
+        pygame.draw.rect(screen, border_color, border_rect, border_radius=border_radius)
+
+    # Vẽ hình chữ nhật bo góc cho nút
+    pygame.draw.rect(screen, button_color, button_rect, border_radius=border_radius)
+
+    # Vẽ text của nút ở vị trí trung tâm
     text_surface = font_button.render(text, True, text_color)
     screen.blit(text_surface, text_surface.get_rect(center=button_rect.center))
+
     return button_rect
 
-def rounded_rect(surface, rect, radius, color):
-    """Vẽ hình chữ nhật bo góc"""
-    pygame.draw.rect(surface, color, rect, border_radius=radius)
-
-def draw_rounded_rect(surface, rect, radius, color, border_width):
-    """Vẽ hình chữ nhật bo góc với viền"""
-    border_rect = rect.inflate(border_width, border_width)
-    pygame.draw.rect(surface, color, border_rect, border_radius=radius)

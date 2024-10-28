@@ -1,7 +1,7 @@
 import random
 
 # Độ sâu của thuật toán xác định AI di chuyển. Set_depth cao hơn == AI khó hơn. Thấp hơn nếu động cơ quá chậm.
-set_depth = 4
+# set_depth = 4
 
 # Giá trị tích cực là tốt cho màu trắng, tiêu cực cho màu đen. Tức là Checkmate đen = -1000
 checkmate_points = 1000
@@ -118,22 +118,20 @@ piece_positions = {
         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0]]}
 
-
 def find_random_move(valid_moves):
     return random.choice(valid_moves)
 
-
-def find_best_move(game_state, valid_moves, SQ_SIZE):
-    """Helper method to make first recursive call"""
+def find_best_move(game_state, valid_moves, SQ_SIZE, depth):
+    """Phương pháp trợ giúp để thực hiện cuộc gọi đệ quy đầu tiên"""
     global next_move
     next_move = None
     random.shuffle(valid_moves)
-    find_negamax_move_alphabeta(game_state, valid_moves, set_depth, -checkmate_points, checkmate_points,
-                                1 if game_state.white_to_move else -1, SQ_SIZE)
+    find_negamax_move_alphabeta(game_state, valid_moves, depth, -checkmate_points, checkmate_points,
+                                        1 if game_state.white_to_move else -1, SQ_SIZE, depth)
     return next_move
 
 
-def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, SQ_SIZE):
+def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, SQ_SIZE, set_depth):
     """
     Thuật toán Negamax với cắt tỉa alpha beta.
 
@@ -153,11 +151,13 @@ def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, tur
         return turn_multiplier * score_board(game_state)
 
     max_score = -checkmate_points
+    random.shuffle(valid_moves)
+
     for move in valid_moves:
         game_state.make_move(move, SQ_SIZE)
-
         next_moves = game_state.get_valid_moves()
-        score = -find_negamax_move_alphabeta(game_state, next_moves, depth - 1, -beta, -alpha, -turn_multiplier, SQ_SIZE)
+        score = -find_negamax_move_alphabeta(game_state, next_moves, depth - 1, -beta, -alpha, -turn_multiplier, SQ_SIZE, set_depth)
+
         if score > max_score:
             max_score = score
             if depth == set_depth:

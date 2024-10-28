@@ -1,6 +1,17 @@
 from additions import *
-from decryption import *
-from constants import *
+
+def initialize_board():
+    """Khởi tạo bàn cờ với các quân cờ ở vị trí ban đầu."""
+    return [
+        ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+        ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+        ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
+    ]
 
 class GameState:
     """
@@ -24,19 +35,14 @@ class GameState:
             - "P" (pawn): là quân tốt
             - "--": là một không gian trống
         """
-        self.board = [
-            ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
-            ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
-            ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']]
+        self.board = initialize_board()
         self.move_functions = {'P': self.get_pawn_moves, 'R': self.get_rook_moves, 'N': self.get_knight_moves,
                                'B': self.get_bishop_moves, 'Q': self.get_queen_moves, 'K': self.get_king_moves}
         self.white_to_move = True
         self.move_log = []
+        self.board_state_log = []  # Nhật ký các trạng thái bàn cờ
+        self.history = []  # Nhật ký lưu chuỗi trạng thái bàn cờ
+        self.cache_board = []
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
         self.checkmate = False
@@ -47,12 +53,13 @@ class GameState:
         self.checks = []
         self.white_captured_pieces = []
         self.black_captured_pieces = []
+        self.castle_move = []
 
         # En passant
         self.en_passant_possible = ()  # Coordinates for square where en passant possible
         self.en_passant_possible_log = [self.en_passant_possible]
 
-        # Castling
+        # Nhập thành
         self.white_castle_king_side = True
         self.white_castle_queen_side = True
         self.black_castle_king_side = True
@@ -146,7 +153,9 @@ class GameState:
                 self.board[move.end_row][move.end_column + 1] = self.board[move.end_row][
                     move.end_column - 2]
                 self.board[move.end_row][move.end_column - 2] = '--'
-            decrypt_sound("move-self")
+            self.castle_move = True
+        else:
+            self.castle_move = False
 
         # Cập nhật quyền đúc
         self.update_castle_rights(move)
@@ -164,51 +173,58 @@ class GameState:
 
     def undo_move(self):
         """Hoàn tác nước đi"""
-        if len(self.move_log) != 0:  # Đảm bảo rằng có một động thái để hoàn tác
-            move = self.move_log.pop()
-            self.board[move.start_row][move.start_column] = move.piece_moved
-            self.board[move.end_row][move.end_column] = move.piece_captured
-            self.white_to_move = not self.white_to_move  # Bật công tắc trở lại
+        if not self.move_log:
+            return  # Không có nước đi để hoàn tác
 
-            # Cập nhật vị trí vua
-            if move.piece_moved == 'wK':
-                self.white_king_location = (move.start_row, move.start_column)
-            elif move.piece_moved == 'bK':
-                self.black_king_location = (move.start_row, move.start_column)
+        move = self.move_log.pop()
+        self.board[move.start_row][move.start_column] = move.piece_moved
+        self.board[move.end_row][move.end_column] = move.piece_captured
+        self.white_to_move = not self.white_to_move  # Đổi lượt
 
-            # Bắt tốt qua đường
-            if move.is_en_passant_move:
-                self.board[move.end_row][move.end_column] = '--'  # Lá hạ cánh vuông trống
-                self.board[move.start_row][move.end_column] = move.piece_captured  # Cho phép bằng cách chuyển sang bước tiếp theo
+        # Cập nhật vị trí vua
+        if move.piece_moved == 'wK':
+            self.white_king_location = (move.start_row, move.start_column)
+        elif move.piece_moved == 'bK':
+            self.black_king_location = (move.start_row, move.start_column)
+
+        # Bắt tốt qua đường
+        if move.is_en_passant_move:
+            self.board[move.end_row][move.end_column] = '--'
+            self.board[move.start_row][move.end_column] = move.piece_captured
+
+        if self.en_passant_possible_log:
             self.en_passant_possible_log.pop()
-            self.en_passant_possible = self.en_passant_possible_log[-1]
+            self.en_passant_possible = self.en_passant_possible_log[-1] if self.en_passant_possible_log else None
 
-            # Quyền đúc
-            self.castle_rights_log.pop()  # Loại bỏ các quyền lâu đài mới khỏi di chuyển hoàn tác
-            castle_rights = self.castle_rights_log[-1]
-            self.white_castle_king_side = castle_rights.white_king_side
-            self.black_castle_king_side = castle_rights.black_king_side
-            self.white_castle_queen_side = castle_rights.white_queen_side
-            self.black_castle_queen_side = castle_rights.black_queen_side
+        # Quyền đúc
+        if self.castle_rights_log:
+            self.castle_rights_log.pop()
+            castle_rights = self.castle_rights_log[-1] if self.castle_rights_log else None
+            if castle_rights:
+                self.white_castle_king_side = castle_rights.white_king_side
+                self.black_castle_king_side = castle_rights.black_king_side
+                self.white_castle_queen_side = castle_rights.white_queen_side
+                self.black_castle_queen_side = castle_rights.black_queen_side
 
-            # Nhập Thành
-            if move.is_castle_move:
-                if move.end_column - move.start_column == 2:  # Phía vua
-                    self.board[move.end_row][move.end_column + 1] = self.board[move.end_row][move.end_column - 1]
-                    self.board[move.end_row][move.end_column - 1] = '--'
-                else:  # Phía hậu
-                    self.board[move.end_row][move.end_column - 2] = self.board[move.end_row][move.end_column + 1]
-                    self.board[move.end_row][move.end_column + 1] = '--'
+        # Nhập thành
+        if move.is_castle_move:
+            if move.end_column - move.start_column == 2:  # Phía vua
+                self.board[move.end_row][move.end_column + 1] = self.board[move.end_row][move.end_column - 1]
+                self.board[move.end_row][move.end_column - 1] = '--'
+            else:  # Phía hậu
+                self.board[move.end_row][move.end_column - 2] = self.board[move.end_row][move.end_column + 1]
+                self.board[move.end_row][move.end_column + 1] = '--'
 
-            # Khôi phục quân cờ bị ăn
-            if move.piece_captured:
-                if move.piece_captured[0] == 'w':
-                    self.white_captured_pieces.remove(move.piece_captured)
-                elif move.piece_captured[0] == 'b':
-                    self.black_captured_pieces.remove(move.piece_captured)
+        # Khôi phục quân cờ bị ăn
+        if move.piece_captured:
+            if move.piece_captured[0] == 'w':
+                self.white_captured_pieces.remove(move.piece_captured)
+            elif move.piece_captured[0] == 'b':
+                self.black_captured_pieces.remove(move.piece_captured)
 
-            self.checkmate = False
-            self.stalemate = False
+        self.checkmate = False
+        self.stalemate = False
+
 
     def get_valid_moves(self):
         """Nhận tất cả các động tác xem xét séc"""
@@ -222,7 +238,7 @@ class GameState:
             king_row, king_column = self.black_king_location[0], self.black_king_location[1]
 
         if self.in_check:
-            if len(self.checks) == 1:  #Chỉ có 1 Kiểm tra: Kiểm tra khối hoặc Di chuyển King King
+            if len(self.checks) == 1:  #Chỉ có 1 Kiểm tra: Kiểm tra khối hoặc Di chuyển King
                 valid_moves = self.get_all_possible_moves()
                 check = self.checks[0]
                 check_row, check_column = check[0], check[1]
@@ -656,30 +672,81 @@ class GameState:
         # Duyệt qua bàn cờ và phân loại các quân cờ
         for row in self.board:
             for piece in row:
-                if piece != '--':  # Nếu ô này không trống
-                    if piece[0] == 'w':  # Quân trắng
+                if piece != '--':
+                    if piece[0] == 'w':
                         white_pieces.append(piece[1])
-                    else:  # Quân đen
+                    else:
                         black_pieces.append(piece[1])
 
         # Nếu chỉ còn hai vua, cờ hòa do thế cờ chết
-        if white_pieces == ['K'] and black_pieces == ['K']:
-            self.stalemate = True
-            return
-
-        # Trường hợp chỉ có vua và mã hoặc vua và tượng
-        if (white_pieces == ['K', 'N'] or white_pieces == ['K', 'B']) and black_pieces == ['K']:
-            self.stalemate = True
-            return
-        if (black_pieces == ['K', 'N'] or black_pieces == ['K', 'B']) and white_pieces == ['K']:
-            self.stalemate = True
-            return
+        if (len(white_pieces) == 1 and white_pieces[0] == 'K' and
+                len(black_pieces) == 1 and black_pieces[0] == 'K'):
+            return True
 
         # Trường hợp cả hai bên chỉ có vua và mã
         if white_pieces == ['K', 'N'] and black_pieces == ['K', 'N']:
-            self.stalemate = True
-            return
+            return True
 
+        # Trường hợp cả hai bên chỉ có vua và tượng
+        if white_pieces == ['K', 'B'] and black_pieces == ['K', 'B']:
+            return True
+
+        # Trường hợp cả hai bên chỉ có vua và (mã hoặc tượng)
+        if white_pieces == ['K', 'B'] and black_pieces == ['K', 'N'] or \
+            white_pieces == ['K', 'N'] and black_pieces == ['K', 'B']:
+            return True
+
+        return False
+
+    def pat(self):
+        """Kiểm tra hòa do hết nước đi"""
+        # Kiểm tra nếu vua không bị chiếu
+        if not self.in_check:
+            # Lấy tất cả các nước đi hợp lệ
+            valid_moves = self.get_valid_moves()
+
+            # Nếu không còn nước đi hợp lệ thì hòa (PAT)
+            if len(valid_moves) == 0:
+                return True
+
+        return False
+
+    def threefold_repetition(self, moves):
+        """Kiểm tra lặp lại ba lần gần nhất"""
+        if len(moves) < 10:
+            return False
+
+        if (moves[-1] == moves[-5] and
+                moves[-2] == moves[-6] and
+                moves[-3] == moves[-7] and
+                moves[-4] == moves[-8] and
+                moves[-5] == moves[-9]):
+            return True
+
+        return False
+
+    def stalemate_special(self):
+        """
+        Kiểm tra các điều kiện hòa đặc biệt:
+        - Hòa do thế cờ chết
+        - Hòa do hết nước đi
+        - Hòa do bất biến 3 lần
+        """
+        # Kiểm tra hòa do thế cờ chết
+        if self.insufficient_material():
+            self.stalemate = True
+            return True
+
+        # Kiểm tra hòa do hết nước đi
+        if self.pat():
+            self.stalemate = True
+            return True
+
+        # Kiểm tra hòa do bất biến 3 lần
+        if self.threefold_repetition(self.move_log):
+            self.stalemate = True
+            return True
+        return False
 
 class CastleRights:
     """Lưu trữ dữ liệu về các trạng thái hiện tại của nhập thành"""
@@ -689,7 +756,6 @@ class CastleRights:
         self.black_king_side = black_king_side
         self.white_queen_side = white_queen_side
         self.black_queen_side = black_queen_side
-
 
 class Move:
     """
@@ -748,22 +814,25 @@ class Move:
         if self.is_castle_move:
             return 'O-O' if self.end_column == 6 else 'O-O-O'
 
+        start_square = self.get_rank_file(self.start_row, self.start_column)
         end_square = self.get_rank_file(self.end_row, self.end_column)
 
         # Quân tốt di chuyển
         if self.piece_moved[1] == 'P':
             if self.is_pawn_promotion and not self.is_capture:  # Phong cấp
-                return f'{end_square}={promoted_piece}'
+                return f'{start_square}{end_square}={promoted_piece}'
             elif self.is_capture and self.is_pawn_promotion:  # Ăn quân và phong cấp
-                return f'{self.columns_to_files[self.start_column]}x{end_square}={promoted_piece}'
+                return f'x-{start_square}{end_square}{end_square}={promoted_piece}'
             elif self.is_capture and not self.is_pawn_promotion:  # Ăn quân
-                return f'{self.columns_to_files[self.start_column]}x{end_square}'
+                return f'x-{start_square}{end_square}'
             else:  # di chuyển bình tường
-                return end_square
+                return f'{start_square}{end_square}'
 
         # Các quân còn lại
         move_string = self.piece_moved[1]
         if self.is_capture:
             move_string += 'x'
 
-        return f'{move_string}{end_square}'
+        return f'{move_string}-{start_square}{end_square}'
+
+

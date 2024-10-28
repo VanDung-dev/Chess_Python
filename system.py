@@ -1,12 +1,10 @@
 from additions import *
-from constants import *
 from decryption import *
 
 pygame.init()
 
 def draw_game_state(screen, game_state, square_selected, SQ_SIZE):
     """Vẽ bộ hiện của trò chơi"""
-    global i
     draw_board(screen, SQ_SIZE)
     highlight_squares(screen, game_state, square_selected, SQ_SIZE)
     if game_state.in_check:
@@ -142,7 +140,7 @@ def draw_move_log(screen, game_state, SQ_SIZE):
                 SQ_SIZE * 7 - SQ_SIZE // 8, SQ_SIZE // 7, 0,
                 'white', 'black', COLOR_SCREEN, COLOR_SCREEN, COLOR_SCREEN)
 
-    FONT = pygame.font.SysFont('Arial', SQ_SIZE // 5 - SQ_SIZE // 35, True)
+    FONT = pygame.font.SysFont('Arial', SQ_SIZE // 6, True)
     move_log_area = pygame.Rect(SQ_SIZE * 9 + SQ_SIZE // 3, SQ_SIZE + SQ_SIZE // 12,
                                 SQ_SIZE * 5 - SQ_SIZE // 8, SQ_SIZE * 7 - SQ_SIZE // 8)
 
@@ -191,4 +189,3 @@ def animate_move(move, screen, board, clock, game_state, SQ_SIZE):
 
         screen.blit(images[move.piece_moved], pygame.Rect(column * SQ_SIZE, row * SQ_SIZE, SQ_SIZE, SQ_SIZE))
         pygame.display.flip()
-        clock.tick(60)

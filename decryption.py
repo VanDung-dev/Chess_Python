@@ -30,15 +30,6 @@ def decrypt_sound(sound_name):
     sound = pygame.mixer.Sound(sound_file)  # Tải âm thanh từ stream
     sound.play()
 
-from images import images
-from sounds import sounds
-from videos import videos
-from moviepy.editor import VideoFileClip
-import io
-import base64
-import os
-import pygame
-
 def decrypt_image(piece, size):
     """Giải mã và tải ảnh của quân cờ, điều chỉnh kích thước"""
     if isinstance(images[piece], str):  # Nếu ảnh là chuỗi base64
