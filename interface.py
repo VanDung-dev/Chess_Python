@@ -1,5 +1,4 @@
 from engine import *
-from core_data import *
 from negamaxAI import *
 from base64_encryption import *
 import time
@@ -275,15 +274,15 @@ def support(SQ_SIZE, size_index, lvl_index, language_index):
                     'white', 'white', COLOR_SCREEN, COLOR_SCREEN, 'grey')
 
         # Tạo font chữ
-        font_support = pygame.font.Font(font_path, text_size)  # Điều chỉnh kích thước font nếu cần
+        font_support = pygame.font.Font(font_path, text_size)
+        font_version = pygame.font.Font(font_path, text_size - SQ_SIZE // 10)
 
         # Tạo các dòng văn bản
-        text_support1 = font_support.render(f"{texts['Support keys'][language_index]}:", True,
-                                            'white')  # Tạo dòng văn bản texts["Support keys"][language_index], True, 'white')
+        text_support1 = font_support.render(f"{texts['Support keys'][language_index]}:", True,'white')
         text_support2 = font_support.render(texts["Undo key"][language_index], True, 'white')
         text_support3 = font_support.render(texts["Negamax key"][language_index], True, 'white')
         text_support4 = font_support.render(texts["Restart key"][language_index], True, 'white')
-        text_support7 = font_support.render(f"{texts['Version'][language_index]}: {version}", True, 'white')
+        text_support7 = font_version.render(f"{texts['Version'][language_index]}: {version}", True, 'white')
 
         # Hiển thị các dòng văn bản tại vị trí text_support
         screen.blit(text_support1, (SQ_SIZE * 2 + SQ_SIZE // 2, SQ_SIZE + SQ_SIZE // 2))
