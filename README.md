@@ -28,11 +28,11 @@ Dưới đây là danh sách các file Python trong dự án cùng với mô t�
 - **`interface.py`**: Định nghĩa giao diện người dùng cho trò chơi.
 - **`main.py`**: File khởi chạy chính của trò chơi.
 - **`base64_encryption.py`**: Trình mã hóa và giải mã base64
-- Bên trong thư mục **`core_data`**:
+- Bên trong thư mục **`core_data/`**:
     - **`constants.py`**: Các hằng số sử dụng trong trò chơi.
     - **`system.py`**: Chứa các chức năng chính của trò chơi.
     - **`additions.py`**: Các bổ sung và tiện ích cho giao diện người dùng.
-- Bên trong thư mục **`base64_data`**:
+- Bên trong thư mục **`base64_data/`**:
     - **`images.py`**: Ảnh được mã hóa base64
     - **`sounds.py`**: Âm thanh được mã hóa base64
     - **`videos.py`**: Videos được mã hóa base64
