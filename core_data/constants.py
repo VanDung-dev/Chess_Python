@@ -51,9 +51,9 @@ texts = {
                           "Back to main menu?"],
 
     # Hàm code_version
-    "Send code": ["Gửi",
+    "Send": ["Gửi",
                   "Send"],
-    "Wrong code": ["Sai một một",
+    "Wrong": ["Sai một một",
                    "Wrong code"],
     "Pass": ["Thành công",
              "Pass"],
