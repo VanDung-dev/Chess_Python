@@ -12,8 +12,9 @@ Dự án này là một trò chơi cờ vua được phát triển bằng Python
 
 ## 2. Cấu Trúc Dự Án
 
-Dự án được tổ chức theo cấu trúc sau:
+Các thư mục dự án:
 
+- **`fonts`** : Thư mục chứa các tài nguyên phông chữ
 - **`images/`**: Thư mục chứa các tài nguyên hình ảnh quân cờ dưới định dạng PNG và ICO.
 - **`sounds/`**: Thư mục chứa các tài nguyên âm thanh dưới định dạng MP3.
 - **`videos/`**: Thư mục chứa các tài nguyên video dưới định dạng MP4.
@@ -23,17 +24,19 @@ Dự án được tổ chức theo cấu trúc sau:
 Dưới đây là danh sách các file Python trong dự án cùng với mô tả chức năng của chúng:
 
 - **`negamaxAI.py`**: Thuật toán điều khiển AI (thuật toán Negamax).
-- **`constants.py`**: Các hằng số sử dụng trong trò chơi.
 - **`engine.py`**: Cung cấp các thư viện và chức năng cơ bản của trò chơi.
-- **`system.py`**: Chứa các chức năng chính của trò chơi.
 - **`interface.py`**: Định nghĩa giao diện người dùng cho trò chơi.
-- **`additions.py`**: Các bổ sung và tiện ích cho giao diện người dùng.
 - **`main.py`**: File khởi chạy chính của trò chơi.
-- **`encryption.py`**: Trình mã hóa base64
-- **`decryption.py`**: Trình giải mã base64
-- **`images.py`**: Ảnh được mã hóa base64
-- **`sounds.py`**: Âm thanh được mã hóa base64
-- **`videos.py`**: Videos được mã hóa base64
+- **`base64_encryption.py`**: Trình mã hóa và giải mã base64
+- Bên trong thư mục **`core_data`**:
+    - **`constants.py`**: Các hằng số sử dụng trong trò chơi.
+    - **`system.py`**: Chứa các chức năng chính của trò chơi.
+    - **`additions.py`**: Các bổ sung và tiện ích cho giao diện người dùng.
+- Bên trong thư mục **`base64_data`**:
+    - **`images.py`**: Ảnh được mã hóa base64
+    - **`sounds.py`**: Âm thanh được mã hóa base64
+    - **`videos.py`**: Videos được mã hóa base64
+    - **`fonts.py`**: Phông chữ được mã hóa base64
 
 ---
 
@@ -62,7 +65,7 @@ Môi trường ảo giúp bạn quản lý các thư viện cho dự án mà kh�
 
 ```bash 
 python -m venv venv
-source venv/bin/activate  # Trên Linux
+source venv/bin/activate  # Trên Linux/maxOS
 venv\Scripts\activate   # Trên Windows
 ```
 
