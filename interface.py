@@ -412,7 +412,6 @@ def setting(SQ_SIZE, size_index, language_index):
     """Hiển thị menu thiết lập"""
     global WIDTH, HEIGHT, screen, apply_settings, lvl
     apply_settings = True
-    languages = ['Tiếng Việt', 'English']
     sizes = [(960, 540), (1120, 630), (1280, 720), (1440, 810), (1600, 900)]
     WIDTH, HEIGHT = sizes[size_index]
     notification_time = None  # Biến lưu thời gian bắt đầu hiển thị thông báo
