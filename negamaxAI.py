@@ -1,6 +1,5 @@
 import random
-
-from core_data import language_index
+from core_data import *
 
 # Độ sâu của thuật toán xác định AI di chuyển. Set_depth cao hơn == AI khó hơn. Thấp hơn nếu động cơ quá chậm.
 # set_depth = 4
