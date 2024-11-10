@@ -1,4 +1,6 @@
-from additions import *
+from core_data import *
+import pygame
+
 
 def initialize_board():
     """Khởi tạo bàn cờ với các quân cờ ở vị trí ban đầu."""
@@ -13,6 +15,7 @@ def initialize_board():
         ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
     ]
 
+
 class GameState:
     """
     Lớp chịu trách nhiệm lưu trữ các thông tin cơ bản của trò chơi.
@@ -22,6 +25,7 @@ class GameState:
         - Xác định các nước đi hợp lệ
         - Nhập kí nước đi
     """
+
     def __init__(self):
         """
         Danh sách bàn cờ 8x8 2d cơ bản:
@@ -67,11 +71,12 @@ class GameState:
         self.castle_rights_log = [CastleRights(self.white_castle_king_side, self.black_castle_king_side,
                                                self.white_castle_queen_side, self.black_castle_queen_side)]
 
-    def make_move(self, move, SQ_SIZE):
+    def make_move(self, move, SQ_SIZE, language_index):
         """Thực hiện một di chuyển làm tham số, thực thi nó và cập nhật nhật ký di chuyển"""
         global promoted_piece
 
-        self.board[move.start_row][move.start_column] = '--'  # Khi một mảnh được di chuyển, hình vuông mà nó để lại trống
+        self.board[move.start_row][
+            move.start_column] = '--'  # Khi một mảnh được di chuyển, hình vuông mà nó để lại trống
         self.board[move.end_row][move.end_column] = move.piece_moved  # Di chuyển mảnh đến vị trí mới
         self.move_log.append(move)  # Nhật ký di chuyển
 
@@ -116,7 +121,7 @@ class GameState:
                     while promoted_piece is None:
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
-                                quit_game(SQ_SIZE)
+                                quit_game(SQ_SIZE, language_index)
                             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                                 x, y = event.pos
                                 # Kiểm tra xem người chơi có chọn trong phạm vi các quân phong cấp không
@@ -136,7 +141,8 @@ class GameState:
             self.board[move.start_row][move.end_column] = '--'
 
         # Cập nhật biến en_passant_posible
-        if move.piece_moved[1] == 'P' and abs(move.start_row - move.end_row) == 2:  # Chỉ có giá trị cho quân tốt di chuyển 2 ô
+        if move.piece_moved[1] == 'P' and abs(
+                move.start_row - move.end_row) == 2:  # Chỉ có giá trị cho quân tốt di chuyển 2 ô
             self.en_passant_possible = ((move.start_row + move.end_row) // 2, move.start_column)
         else:
             self.en_passant_possible = ()
@@ -170,6 +176,8 @@ class GameState:
                 self.white_captured_pieces.append(move.piece_captured)
             elif move.piece_captured[0] == 'b':
                 self.black_captured_pieces.append(move.piece_captured)
+
+        print(self.move_log)
 
     def undo_move(self):
         """Hoàn tác nước đi"""
@@ -225,7 +233,6 @@ class GameState:
         self.checkmate = False
         self.stalemate = False
 
-
     def get_valid_moves(self):
         """Nhận tất cả các động tác xem xét séc"""
         valid_moves = []
@@ -238,7 +245,7 @@ class GameState:
             king_row, king_column = self.black_king_location[0], self.black_king_location[1]
 
         if self.in_check:
-            if len(self.checks) == 1:  #Chỉ có 1 Kiểm tra: Kiểm tra khối hoặc Di chuyển King
+            if len(self.checks) == 1:  # Chỉ có 1 Kiểm tra: Kiểm tra khối hoặc Di chuyển King
                 valid_moves = self.get_all_possible_moves()
                 check = self.checks[0]
                 check_row, check_column = check[0], check[1]
@@ -248,11 +255,13 @@ class GameState:
                     valid_squares = [(check_row, check_column)]
                 else:
                     for i in range(1, len(self.board)):
-                        valid_square = (king_row + check[2] * i, king_column + check[3] * i)  # 2 và 3 = Hướng dẫn kiểm tra
+                        valid_square = (
+                        king_row + check[2] * i, king_column + check[3] * i)  # 2 và 3 = Hướng dẫn kiểm tra
                         valid_squares.append(valid_square)
                         if valid_square[0] == check_row and valid_square[1] == check_column:
                             break
-                for i in range(len(valid_moves) - 1, -1, -1):  # Loại bỏ việc di chuyển không chặn, kiểm tra hoặc di chuyển vua
+                for i in range(len(valid_moves) - 1, -1,
+                               -1):  # Loại bỏ việc di chuyển không chặn, kiểm tra hoặc di chuyển vua
                     if valid_moves[i].piece_moved[1] != 'K':
                         if not (valid_moves[i].end_row, valid_moves[i].end_column) in valid_squares:
                             valid_moves.remove(valid_moves[i])
@@ -383,7 +392,8 @@ class GameState:
             if self.pins[i][0] == row and self.pins[i][1] == column:
                 piece_pinned = True
                 pin_direction = (self.pins[i][2], self.pins[i][3])
-                if self.board[row][column][1] != 'Q': # Không thể loại bỏ nữ hoàng khỏi pin trên các động tác quân xe (chỉ di chuyển của giám mục)
+                if self.board[row][column][
+                    1] != 'Q':  # Không thể loại bỏ nữ hoàng khỏi pin trên các động tác quân xe (chỉ di chuyển của giám mục)
                     self.pins.remove(self.pins[i])
                 break
 
@@ -630,7 +640,8 @@ class GameState:
                         # Kiểm tra nếu là quân xe, tượng, hậu, tốt hoặc vua đối phương đang chiếu
                         if (0 <= j <= 3 and piece_type == 'R') or (4 <= j <= 7 and piece_type == 'B') or \
                                 (i == 1 and piece_type == 'P' and ((opponent == 'w' and 6 <= j <= 7) or
-                                (opponent == 'b' and 4 <= j <= 5))) or (piece_type == 'Q') or (i == 1 and piece_type == 'K'):
+                                                                   (opponent == 'b' and 4 <= j <= 5))) or (
+                                piece_type == 'Q') or (i == 1 and piece_type == 'K'):
                             if possible_pin == ():  # Không có quân chặn, vua đang bị chiếu
                                 in_check = True
                                 checks.append((end_row, end_column, d[0], d[1]))
@@ -693,7 +704,7 @@ class GameState:
 
         # Trường hợp cả hai bên chỉ có vua và (mã hoặc tượng)
         if white_pieces == ['K', 'B'] and black_pieces == ['K', 'N'] or \
-            white_pieces == ['K', 'N'] and black_pieces == ['K', 'B']:
+                white_pieces == ['K', 'N'] and black_pieces == ['K', 'B']:
             return True
 
         return False
@@ -748,6 +759,7 @@ class GameState:
             return True
         return False
 
+
 class CastleRights:
     """Lưu trữ dữ liệu về các trạng thái hiện tại của nhập thành"""
 
@@ -756,6 +768,7 @@ class CastleRights:
         self.black_king_side = black_king_side
         self.white_queen_side = white_queen_side
         self.black_queen_side = black_queen_side
+
 
 class Move:
     """
@@ -834,5 +847,3 @@ class Move:
             move_string += 'x'
 
         return f'{move_string}-{start_square}{end_square}'
-
-
