@@ -10,8 +10,8 @@ game_state = GameState()
 def back_to_main_menu(SQ_SIZE, language_index):
     """Kiểm tra xem người chơi có muốn thoát về màn hình chính hay không"""
     text_size = SQ_SIZE // 3
-    in_quit = True
-    while in_quit:
+    in_back_to_menu = True
+    while in_back_to_menu:
         # Vẽ nút và các thông báo thoát game
         draw_button("", 0, SQ_SIZE * 4, SQ_SIZE * 3,
                     SQ_SIZE * 6, SQ_SIZE * 2, SQ_SIZE // 7, SQ_SIZE // 15,
@@ -33,7 +33,8 @@ def back_to_main_menu(SQ_SIZE, language_index):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pass
+                quit_game(SQ_SIZE, language_index)
+                in_back_to_menu = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if no_button.collidepoint(event.pos):
                     return
@@ -237,7 +238,8 @@ def new_game(SQ_SIZE, size_index, lvl_index, language_index):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pass
+                quit_game(SQ_SIZE, language_index)
+                in_new = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if no_button.collidepoint(event.pos):
                     return
@@ -360,7 +362,7 @@ def support(SQ_SIZE, size_index, lvl_index, language_index):
                     else:
                         new_game(SQ_SIZE, size_index, lvl_index, language_index)
                 elif main_menu_button.collidepoint(event.pos):
-                    back_to_main_menu(SQ_SIZE, 0)
+                    back_to_main_menu(SQ_SIZE, language_index)
 
                 elif minus_lvl_button.collidepoint(event.pos) and event.button == 1 and lvl_index > 0:
                     lvl_index = (lvl_index - 1) % len(lvls)
