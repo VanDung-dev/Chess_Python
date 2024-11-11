@@ -1,10 +1,12 @@
+'''Bạn cần khóa lệnh này trước khi mã hóa'''
 from base64_data import images, sounds, videos, fonts
+'''--------------------------------------'''
 from moviepy.editor import VideoFileClip
 import io
 import base64
 import os
 import pygame
-import atexit  # Thư viện để xóa file tạm khi chương trình kết thúc
+import atexit
 
 # Khởi tạo pygame
 pygame.init()
@@ -13,22 +15,22 @@ pygame.init()
 temp_font_files = []
 
 
-# Hàm thay thế hoặc chèn vào tệp mã hóa nếu tệp đã tồn tại
-def append_to_file(filename, content):
+# Hàm kiểm tra sự tồn tại của tệp
+def file_exists(filename):
+    return os.path.exists(filename)
+
+
+# Hàm để ghi đè nội dung mới vào file
+def write_to_file(filename, content):
     try:
-        with open(filename, 'a') as python_file:  # Mở tệp ở chế độ append
+        with open(filename, 'w') as python_file:
             python_file.write(content)
     except Exception as e:
         print(f"Xảy ra lỗi khi ghi vào {filename}: {e}")
 
 
-# Kiểm tra sự tồn tại của tệp mã hóa
-def file_exists(filename):
-    return os.path.exists(filename)
-
-
 def encode_images():
-    image_folder = 'images'  # Thư mục chứa ảnh
+    image_folder = 'images'
     try:
         content = "images = {\n"
         for image_file in os.listdir(image_folder):
@@ -40,19 +42,14 @@ def encode_images():
                     content += f'    "{piece_name}": "{encoded_string}",\n'
         content += "}\n"
 
-        if not file_exists('base64_data/images.py'):
-            with open('base64_data/images.py', 'w') as python_file:
-                python_file.write(content)
-            print("Mã hóa ảnh hoàn tất và đã lưu vào images.py!")
-        else:
-            append_to_file('base64_data/images.py', content)  # Chèn vào tệp nếu đã tồn tại
-            print("Đã thêm bản mã hóa ảnh mới vào images.py!")
+        write_to_file('base64_data/images.py', content)
+        print("Mã hóa ảnh hoàn tất và đã lưu vào images.py!")
     except Exception as e:
         print(f"Xảy ra lỗi: {e}")
 
 
 def encode_sounds():
-    sound_folder = 'sounds'  # Thư mục chứa âm thanh
+    sound_folder = 'sounds'
     try:
         content = "sounds = {\n"
         for sound_file in os.listdir(sound_folder):
@@ -64,19 +61,14 @@ def encode_sounds():
                     content += f'    "{sound_name}": "{encoded_string}",\n'
         content += "}\n"
 
-        if not file_exists('base64_data/sounds.py'):
-            with open('base64_data/sounds.py', 'w') as python_file:
-                python_file.write(content)
-            print("Mã hóa âm thanh hoàn tất và đã lưu vào sounds.py!")
-        else:
-            append_to_file('base64_data/sounds.py', content)  # Chèn vào tệp nếu đã tồn tại
-            print("Đã thêm bản mã hóa âm thanh mới vào sounds.py!")
+        write_to_file('base64_data/sounds.py', content)
+        print("Mã hóa âm thanh hoàn tất và đã lưu vào sounds.py!")
     except Exception as e:
         print(f"Xảy ra lỗi: {e}")
 
 
 def encode_video():
-    video_folder = 'videos'  # Thư mục chứa video
+    video_folder = 'videos'
     try:
         content = "videos = {\n"
         for video_file in os.listdir(video_folder):
@@ -88,19 +80,14 @@ def encode_video():
                     content += f'    "{video_name}": "{encoded_string}",\n'
         content += "}\n"
 
-        if not file_exists('base64_data/videos.py'):
-            with open('base64_data/videos.py', 'w') as python_file:
-                python_file.write(content)
-            print("Mã video hoàn tất và được lưu vào videos.py!")
-        else:
-            append_to_file('base64_data/videos.py', content)  # Chèn vào tệp nếu đã tồn tại
-            print("Đã thêm bản mã hóa video mới vào videos.py!")
+        write_to_file('base64_data/videos.py', content)
+        print("Mã hóa video hoàn tất và đã lưu vào videos.py!")
     except Exception as e:
         print(f"Xảy ra lỗi: {e}")
 
 
 def encode_fonts():
-    font_file = 'fonts/FontCustom.ttf'  # Đường dẫn font chữ
+    font_file = 'fonts/FontCustom.ttf'
     try:
         content = "fonts = {\n"
         font_name = os.path.basename(font_file).split('.')[0]
@@ -109,13 +96,8 @@ def encode_fonts():
             content += f'    "{font_name}": "{encoded_string}",\n'
         content += "}\n"
 
-        if not file_exists('base64_data/fonts.py'):
-            with open('base64_data/fonts.py', 'w') as python_file:
-                python_file.write(content)
-            print("Mã hóa font chữ hoàn tất và đã lưu vào fonts.py!")
-        else:
-            append_to_file('base64_data/fonts.py', content)  # Chèn vào tệp nếu đã tồn tại
-            print("Đã thêm bản mã hóa font chữ mới vào fonts.py!")
+        write_to_file('base64_data/fonts.py', content)
+        print("Mã hóa font chữ hoàn tất và đã lưu vào fonts.py!")
     except Exception as e:
         print(f"Xảy ra lỗi: {e}")
 
