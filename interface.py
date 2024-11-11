@@ -244,8 +244,7 @@ def new_game(SQ_SIZE, size_index, lvl_index, language_index):
                 if no_button.collidepoint(event.pos):
                     return
                 elif yes_button.collidepoint(event.pos):
-                    decrypt_sound("game-start")
-                    play_game(SQ_SIZE, size_index, lvl_index, not_negamax_white, not_negamax_black, language_index)
+                    choose_player(SQ_SIZE, size_index, lvl_index, language_index)
                     return lvl_index
 
         clock.tick(60)
@@ -597,6 +596,8 @@ def choose_player(SQ_SIZE, size_index, lvl_index, language_index):
                     play_game(SQ_SIZE, size_index, lvl_index, not_negamax_white, not_negamax_black, language_index)
                 elif back_button.collidepoint(event.pos):
                     in_choose = False
+                    main_menu()
+
 
         if lvl_index == 2:
             draw_button(texts["Warning"][language_index], text_size, SQ_SIZE * 3, SQ_SIZE * 5,
@@ -732,8 +733,8 @@ def play_game(SQ_SIZE, size_index, lvl_index, not_negamax_white, not_negamax_bla
                             animate = False
                             decrypt_sound("move-self")
                     elif event.key == pygame.K_r:
-                        decrypt_sound("game-start")
                         new_game(SQ_SIZE, size_index, lvl_index, language_index)
+                        screen.fill(COLOR_GAME)
 
         # Tìm nước đi của AI
         if not game_over and not human_move:
