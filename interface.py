@@ -125,7 +125,7 @@ def code_version(SQ_SIZE, language_index):
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if send_button.collidepoint(event.pos):
-                    check_input_code()  # Gọi hàm kiểm tra mã
+                    check_input_code()
 
                 elif quit_button.collidepoint(event.pos):
                     in_version = False
@@ -142,7 +142,7 @@ def code_version(SQ_SIZE, language_index):
                     last_backspace_time = pygame.time.get_ticks()
 
                 elif event.key == pygame.K_RETURN:
-                    check_input_code()  # Gọi hàm kiểm tra mã
+                    check_input_code()
 
                 elif event.key == pygame.K_LEFT:
                     if cursor_pos > 0:
@@ -415,7 +415,7 @@ def setting(SQ_SIZE, size_index, language_index):
     apply_settings = True
     sizes = [(960, 540), (1120, 630), (1280, 720), (1440, 810), (1600, 900)]
     WIDTH, HEIGHT = sizes[size_index]
-    notification_time = None  # Biến lưu thời gian bắt đầu hiển thị thông báo
+    notification_time = None
     in_settings = True
     while in_settings:
         screen.fill(COLOR_SCREEN)
@@ -483,27 +483,24 @@ def setting(SQ_SIZE, size_index, language_index):
 
                 # Chỉnh sửa ngôn ngữ
                 elif minus_language_button.collidepoint(event.pos) and event.button == 1 and language_index > 0:
-                    language_index = 0  # Chuyển về Tiếng Việt
+                    language_index -= 1
                     apply_settings = False
                 elif plus_language_button.collidepoint(event.pos) and event.button == 1 and language_index < 1:
-                    language_index = 1  # Chuyển sang tiếng Anh
+                    language_index += 1
                     apply_settings = False
 
                 # Các nút còn lại
                 if apply_button.collidepoint(event.pos) and event.button == 1:
                     SQ_SIZE = HEIGHT // 8
-                    screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Thay đổi kích thước cửa sổ
-                    languages = ['Tiếng Việt', 'English'][language_index]
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
                     apply_settings = True
                 elif version_button.collidepoint(event.pos) and event.button == 1:
                     code_version(SQ_SIZE, language_index)
                     screen.fill(COLOR_SCREEN)
                 elif back_button.collidepoint(event.pos) and event.button == 1:
                     if apply_settings == False:
-                        # Hiển thị thông báo yêu cầu nhấn "Apply"
                         notification_time = time.time()
                     else:
-                        # Nếu đã bấm "Apply", thực hiện quay lại
                         return size_index, language_index, SQ_SIZE
 
         # Kiểm tra và hiển thị thông báo nếu cần
@@ -586,10 +583,8 @@ def choose_player(SQ_SIZE, size_index, lvl_index, language_index):
                 quit()
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if white_choose_button.collidepoint(event.pos):
-                    # Chuyển đổi vai trò của Player 1
                     not_negamax_white = not not_negamax_white
                 elif black_choose_button.collidepoint(event.pos):
-                    # Chuyển đổi vai trò của Player 2
                     not_negamax_black = not not_negamax_black
                 elif minus_lvl_button.collidepoint(event.pos) and event.button == 1 and lvl_index > 0:
                     lvl_index = (lvl_index - 1) % len(lvls)
@@ -619,7 +614,7 @@ def play_game(SQ_SIZE, size_index, lvl_index, not_negamax_white, not_negamax_bla
     """Phần giao diện chơi cờ"""
     global WIDTH, HEIGHT, screen, lvl, text, valid_moves, negamax_help, human_move
 
-    game_state.__init__()  # Khởi động lại trò chơi
+    game_state.__init__()
     valid_moves = GameState().get_valid_moves()
 
     text_size = SQ_SIZE // 3
@@ -692,7 +687,7 @@ def play_game(SQ_SIZE, size_index, lvl_index, not_negamax_white, not_negamax_bla
                         decrypt_sound("negamax-on")
 
                     if not game_over:
-                        # Xử lý chọn ô cờ
+                        # Xử lý chọn ô cờ để di chuyển quân cờ
                         location = pygame.mouse.get_pos()
                         column = location[0] // SQ_SIZE
                         row = location[1] // SQ_SIZE
