@@ -150,7 +150,7 @@ Bây gờ bạn có thể chơi cùng bạn bè hoặc thử thách với máy (
 ### 4.6. Lưu ý:
 
 - Việc mã hóa này có mục đích tạo chương trình độc lập và không cần phải có **`images/`** với **`sounds/`** ở cạnh.
-- Với Linux và macOS thì sẽ có vài tính năng không hỗ trợ trong **`decryption.py`**, bạn cần sử đổi lại trước khi chạy code.
+- Với Linux và macOS thì có thể sẽ có vài tính năng không hỗ trợ hoặc chạy mã không đúng cách.
 
 ---
 
