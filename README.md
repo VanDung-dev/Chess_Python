@@ -5,7 +5,7 @@
 Dự án này là một trò chơi cờ vua được phát triển bằng Python, với giao diện đồ họa thân thiện và đầy đủ các tính năng cơ bản của một ván cờ vua tiêu chuẩn. Người dùng có thể chơi với bạn bè hoặc thử thách với máy (negamaxAI).
 
 <div align="center">
-    <img src="images/gameplay.gif" alt="Ảnh gif gameplay" width="300" height="300">
+    <img src="assets/other_images/gameplay.gif" alt="Ảnh gif gameplay" width="300" height="300">
 </div>
 
 ---
