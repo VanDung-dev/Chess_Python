@@ -1,5 +1,5 @@
 from interface import *
-
+from data.decryption import decryption_logo
 
 pygame.init()
 
@@ -10,18 +10,13 @@ def resource_path(relative_path):
     base_path = os.path.abspath(".")  # Khi chạy trực tiếp từ mã nguồn
     return os.path.join(base_path, relative_path)
 
-
-icon = decrypt_image('logo', (256, 256))
+icon = decryption_logo('logo', (256, 256))
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Chess_Python by Nguyen Le Van Dung')
 
 
-def main():
+if __name__ == '__main__':
     try:
         main_menu()
     except Exception as e:
         pass
-
-
-if __name__ == '__main__':
-    main()

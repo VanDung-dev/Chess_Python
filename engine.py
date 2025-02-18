@@ -1,21 +1,3 @@
-from core_data import *
-import pygame
-
-
-def initialize_board():
-    """Khởi tạo bàn cờ với các quân cờ ở vị trí ban đầu."""
-    return [
-        ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
-        ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
-        ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
-    ]
-
-
 class GameState:
     """
     Lớp chịu trách nhiệm lưu trữ các thông tin cơ bản của trò chơi.
@@ -39,7 +21,16 @@ class GameState:
             - "P" (pawn): là quân tốt
             - "--": là một không gian trống
         """
-        self.board = initialize_board()
+        self.board = [
+        ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+        ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['--', '--', '--', '--', '--', '--', '--', '--'],
+        ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+        ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
+        ]
         self.move_functions = {'P': self.get_pawn_moves, 'R': self.get_rook_moves, 'N': self.get_knight_moves,
                                'B': self.get_bishop_moves, 'Q': self.get_queen_moves, 'K': self.get_king_moves}
         self.white_to_move = True
@@ -53,11 +44,13 @@ class GameState:
         self.stalemate = False
         self.in_check = False
         self.negamax_turn = False
+
         self.pins = []
         self.checks = []
         self.white_captured_pieces = []
         self.black_captured_pieces = []
         self.castle_move = []
+        self.fifty_move_counter = 0
 
         # En passant
         self.en_passant_possible = ()  # Coordinates for square where en passant possible
@@ -71,7 +64,7 @@ class GameState:
         self.castle_rights_log = [CastleRights(self.white_castle_king_side, self.black_castle_king_side,
                                                self.white_castle_queen_side, self.black_castle_queen_side)]
 
-    def make_move(self, move, SQ_SIZE, language_index):
+    def make_move(self, move, size, language_index):
         """Thực hiện một di chuyển làm tham số, thực thi nó và cập nhật nhật ký di chuyển"""
         global promoted_piece
 
@@ -87,54 +80,13 @@ class GameState:
 
         # Phong cấp cho quân tốt
         if move.is_pawn_promotion:
-            """Gọi quân phong cấp"""
-            if self.negamax_turn:  # Nếu đây là lượt của AI
-                if self.white_to_move:
-                    promoted_piece = 'wQ'
-                else:
-                    promoted_piece = 'bQ'
+            if self.negamax_turn:
+                promoted_piece = 'wQ' if self.white_to_move else 'bQ'
             else:
-                in_promote = True
-                while in_promote:
-                    y = SQ_SIZE * (0 if self.white_to_move else 4)
-                    x = move.end_column * SQ_SIZE
-                    piece_color = move.piece_moved[0]
-                    if piece_color == 'w':
-                        pieces = ['wQ', 'wR', 'wB', 'wN']
-                    else:
-                        pieces = ['bQ', 'bR', 'bB', 'bN']
-                    # Vẽ lựa chọn phong cấp
-                    draw_button("", 0, x, y, SQ_SIZE, SQ_SIZE * 4,
-                                SQ_SIZE // 7, 0,
-                                COLOR_SCREEN, COLOR_SCREEN, 'dark gray', 'dark gray', COLOR_SCREEN)
-
-                    # Vẽ các quân cờ phong cấp trực tiếp lên screen
-                    for i, piece in enumerate(pieces):
-                        # Hiển thị từng quân cờ trực tiếp lên screen
-                        screen.blit(promote_images[piece], pygame.Rect(x, y + i * SQ_SIZE, SQ_SIZE, SQ_SIZE))
-
-                    # Hiển thị các thay đổi lên màn hình
-                    pygame.display.flip()
-
-                    # Chờ người chơi chọn quân phong cấp
-                    promoted_piece = None
-                    while promoted_piece is None:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
-                                quit_game(SQ_SIZE, language_index)
-                            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                                x, y = event.pos
-                                # Kiểm tra xem người chơi có chọn trong phạm vi các quân phong cấp không
-                                if x <= x <= x + SQ_SIZE and y <= y <= y + SQ_SIZE * 4:
-                                    selected_index = (y - y) // SQ_SIZE
-                                    if 0 <= selected_index < len(pieces):
-                                        promoted_piece = pieces[selected_index]
-                                        in_promote = False  # Kết thúc vòng lặp phong cấp
-                                        break
-                        clock.tick(60)
-
-            # Cập nhật bàn cờ với quân phong cấp
-            self.board[move.end_row][move.end_column] = promoted_piece
+                from core.additions import get_promotion_piece
+                piece_color = move.piece_moved[0]
+                promoted_piece = get_promotion_piece(piece_color, move.end_column, size, language_index)
+                self.board[move.end_row][move.end_column] = promoted_piece
 
         # Bắt tốt qua đường
         if move.is_en_passant_move:
@@ -146,6 +98,12 @@ class GameState:
             self.en_passant_possible = ((move.start_row + move.end_row) // 2, move.start_column)
         else:
             self.en_passant_possible = ()
+
+        # Kiểm tra với luận 50 di chuyển
+        if move.piece_moved[1] == "P" or move.piece_captured != "--":
+            self.fifty_move_counter = 0
+        else:
+            self.fifty_move_counter += 1
 
         self.en_passant_possible_log.append(self.en_passant_possible)
 
@@ -728,10 +686,10 @@ class GameState:
             return False
 
         if (moves[-1] == moves[-5] and
-                moves[-2] == moves[-6] and
-                moves[-3] == moves[-7] and
-                moves[-4] == moves[-8] and
-                moves[-5] == moves[-9]):
+            moves[-2] == moves[-6] and
+            moves[-3] == moves[-7] and
+            moves[-4] == moves[-8] and
+            moves[-5] == moves[-9]):
             return True
 
         return False
@@ -744,19 +702,13 @@ class GameState:
         - Hòa do bất biến 3 lần
         """
         # Kiểm tra hòa do thế cờ chết
-        if self.insufficient_material():
+        if (self.insufficient_material() or
+            self.pat() or
+            self.threefold_repetition(self.move_log) or
+            self.fifty_move_counter >= 100):
             self.stalemate = True
             return True
 
-        # Kiểm tra hòa do hết nước đi
-        if self.pat():
-            self.stalemate = True
-            return True
-
-        # Kiểm tra hòa do bất biến 3 lần
-        if self.threefold_repetition(self.move_log):
-            self.stalemate = True
-            return True
         return False
 
 
@@ -809,6 +761,9 @@ class Move:
         if isinstance(other, Move):
             return self.move_id == other.move_id
         return False
+
+    def __hash__(self):
+        return hash((self.start_row, self.start_column, self.end_row, self.end_column, self.piece_moved, self.piece_captured))
 
     def get_chess_notation(self):
         """Tạo ra một ký hiệu cờ vua và tập tin"""
