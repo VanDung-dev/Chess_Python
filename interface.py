@@ -1,6 +1,6 @@
 import time
 from engine import *
-from negamaxAT import *
+from negamaxAI import *
 from core.system import *
 from data.save_selection import *
 from data.decryption import decryption_sound
