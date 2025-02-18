@@ -42,7 +42,7 @@ def get_scale():
 
 size_index, language_index, color_index, piece_index = load_preferences_setting()
 lvl_index, not_negamax_white, not_negamax_black = load_preferences_ai()
-version = "v0.8.1"
+version = "v0.9-beta"
 scale_width, scale_height = get_scale()
 images = {}
 captures_images = {}
